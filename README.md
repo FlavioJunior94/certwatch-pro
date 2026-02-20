@@ -98,6 +98,9 @@ chmod +x start.sh && ./start.sh
 ##  Preview
 
 ### Dashboard
+
+![Dashboard CertWatch-Pro](img/dash.jpg)
+
 ```
 ┌─────────────────────────────────────────────────────────┐
 │  🔐 CertMonitor                          [🔄 Atualizar] │
