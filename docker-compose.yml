@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  certmonitor:
+    build: ./server
+    container_name: certmonitor-server
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/data
+      - ./config:/app/config
+    environment:
+      - API_TOKEN=change-this-secure-token
+      - ALERT_DAYS=30,15,7,3,1
+    restart: unless-stopped
+    networks:
+      - certmonitor-net
+
+networks:
+  certmonitor-net:
+    driver: bridge

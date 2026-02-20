@@ -1,0 +1,37 @@
+# Configuração do Agente CertMonitor
+
+# URL do servidor central
+server_url: http://localhost:8000
+
+# Token de autenticação (deve ser o mesmo configurado no servidor)
+api_token: change-this-secure-token
+
+# Nome do host (deixe vazio para usar o hostname do sistema)
+hostname: ""
+
+# Diretórios para escanear certificados
+scan_paths:
+  - ../test_certificates
+  - C:\Certificates
+  - C:\SSL
+  # Linux/Unix exemplos:
+  # - /etc/ssl/certs
+  # - /var/certificates
+  # - /opt/certs
+
+# Intervalo de escaneamento em segundos (3600 = 1 hora)
+scan_interval: 3600
+
+# Extensões de arquivo para escanear
+extensions:
+  - .crt
+  - .cer
+  - .pem
+  - .pfx
+  - .p12
+  - .key
+
+# Modo de execução
+# - once: Executa uma vez e sai
+# - daemon: Executa continuamente
+mode: daemon

@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CertMonitor - Monitoramento de Certificados</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            color: #333;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #666;
+            font-size: 1.1em;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: transform 0.3s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-number {
+            font-size: 3em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 1.1em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .stat-expired { color: #e74c3c; }
+        .stat-critical { color: #e67e22; }
+        .stat-warning { color: #f39c12; }
+        .stat-ok { color: #27ae60; }
+        .stat-total { color: #3498db; }
+        
+        .filters {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .search-box {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.1em;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            transition: border-color 0.3s;
+        }
+        
+        .search-box:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .cert-table {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        th {
+            padding: 20px;
+            text-align: left;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.9em;
+        }
+        
+        td {
+            padding: 20px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        tbody tr {
+            transition: background-color 0.3s;
+        }
+        
+        tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9em;
+            text-transform: uppercase;
+        }
+        
+        .status-expired {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        .status-critical {
+            background: #e67e22;
+            color: white;
+        }
+        
+        .status-warning {
+            background: #f39c12;
+            color: white;
+        }
+        
+        .status-ok {
+            background: #27ae60;
+            color: white;
+        }
+        
+        .hostname {
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .cert-path {
+            color: #666;
+            font-size: 0.9em;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .days-remaining {
+            font-size: 1.3em;
+            font-weight: bold;
+        }
+        
+        .no-certs {
+            text-align: center;
+            padding: 60px;
+            color: #666;
+            font-size: 1.2em;
+        }
+        
+        .refresh-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: transform 0.3s;
+            margin-top: 10px;
+        }
+        
+        .refresh-btn:hover {
+            transform: scale(1.05);
+        }
+        
+        .last-update {
+            color: #666;
+            font-size: 0.85em;
+            margin-top: 5px;
+        }
+        
+        @media (max-width: 768px) {
+            h1 { font-size: 1.8em; }
+            .stats { grid-template-columns: 1fr 1fr; }
+            table { font-size: 0.9em; }
+            th, td { padding: 12px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔐 CertMonitor</h1>
+            <p class="subtitle">Sistema de Monitoramento de Certificados SSL/TLS</p>
+            <button class="refresh-btn" onclick="location.reload()">🔄 Atualizar</button>
+        </header>
+        
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number stat-total">{{ stats.total }}</div>
+                <div class="stat-label">Total</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number stat-expired">{{ stats.expired }}</div>
+                <div class="stat-label">Expirados</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number stat-critical">{{ stats.critical }}</div>
+                <div class="stat-label">Críticos (≤7d)</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number stat-warning">{{ stats.warning }}</div>
+                <div class="stat-label">Atenção (≤30d)</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number stat-ok">{{ stats.ok }}</div>
+                <div class="stat-label">OK</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number stat-total">{{ stats.hosts }}</div>
+                <div class="stat-label">Servidores</div>
+            </div>
+        </div>
+        
+        <div class="filters">
+            <input type="text" class="search-box" id="searchBox" placeholder="🔍 Buscar por hostname, caminho ou subject..." onkeyup="filterTable()">
+        </div>
+        
+        <div class="cert-table">
+            {% if certificates %}
+            <table id="certTable">
+                <thead>
+                    <tr>
+                        <th>Status</th>
+                        <th>Servidor</th>
+                        <th>Certificado</th>
+                        <th>Caminho</th>
+                        <th>Expira em</th>
+                        <th>Dias Restantes</th>
+                        <th>Tipo</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cert in certificates %}
+                    <tr>
+                        <td>
+                            <span class="status-badge status-{{ cert.status_color }}">
+                                {% if cert.days_remaining < 0 %}EXPIRADO
+                                {% elif cert.days_remaining <= 7 %}CRÍTICO
+                                {% elif cert.days_remaining <= 30 %}ATENÇÃO
+                                {% else %}OK{% endif %}
+                            </span>
+                        </td>
+                        <td class="hostname">{{ cert.hostname }}</td>
+                        <td>
+                            <strong>{{ cert.subject }}</strong><br>
+                            <small style="color: #999;">Emissor: {{ cert.issuer }}</small>
+                        </td>
+                        <td class="cert-path">{{ cert.path }}</td>
+                        <td>{{ cert.not_after }}</td>
+                        <td>
+                            <span class="days-remaining" style="color: 
+                                {% if cert.days_remaining < 0 %}#e74c3c
+                                {% elif cert.days_remaining <= 7 %}#e67e22
+                                {% elif cert.days_remaining <= 30 %}#f39c12
+                                {% else %}#27ae60{% endif %}">
+                                {{ cert.days_remaining }} dias
+                            </span>
+                            {% if cert.last_update %}
+                            <div class="last-update">Atualizado: {{ cert.last_update }}</div>
+                            {% endif %}
+                        </td>
+                        <td>{{ cert.cert_type }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="no-certs">
+                <p>📭 Nenhum certificado monitorado ainda.</p>
+                <p style="margin-top: 20px; font-size: 0.9em;">Configure e execute o agente nos servidores clientes para começar o monitoramento.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <script>
+        function filterTable() {
+            const input = document.getElementById('searchBox');
+            const filter = input.value.toLowerCase();
+            const table = document.getElementById('certTable');
+            
+            if (!table) return;
+            
+            const rows = table.getElementsByTagName('tr');
+            
+            for (let i = 1; i < rows.length; i++) {
+                const row = rows[i];
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(filter) ? '' : 'none';
+            }
+        }
+        
+        // Auto-refresh a cada 5 minutos
+        setTimeout(() => location.reload(), 300000);
+    </script>
+</body>
+</html>

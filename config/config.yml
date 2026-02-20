@@ -1,0 +1,34 @@
+# Configuração do Servidor CertMonitor
+
+# Dias para alertar sobre expiração
+alert_days:
+  - 30
+  - 15
+  - 7
+  - 3
+  - 1
+
+# Configurações de notificação
+notifications:
+  # Email
+  email:
+    enabled: false
+    smtp_server: smtp.gmail.com
+    smtp_port: 587
+    smtp_user: alerts@example.com
+    smtp_password: your-app-password
+    from: alerts@example.com
+    to:
+      - admin@example.com
+      - security@example.com
+    
+  # Webhook (Slack, Discord, Teams, etc)
+  webhook:
+    enabled: false
+    url: https://hooks.slack.com/services/YOUR/WEBHOOK/URL
+    
+  # Telegram
+  telegram:
+    enabled: false
+    bot_token: YOUR_BOT_TOKEN
+    chat_id: YOUR_CHAT_ID
