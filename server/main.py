@@ -58,9 +58,9 @@ def save_certificates(certs):
 def get_status_color(days):
     if days < 0:
         return "expired"
-    elif days <= 7:
+    elif days <= 10:
         return "critical"
-    elif days <= 30:
+    elif days <= 20:
         return "warning"
     return "ok"
 
@@ -93,8 +93,8 @@ async def get_stats():
     certs = load_certificates()
     total = len(certs)
     expired = sum(1 for c in certs if c["days_remaining"] < 0)
-    critical = sum(1 for c in certs if 0 <= c["days_remaining"] <= 7)
-    warning = sum(1 for c in certs if 7 < c["days_remaining"] <= 30)
+    critical = sum(1 for c in certs if 0 <= c["days_remaining"] <= 10)
+    warning = sum(1 for c in certs if 10 < c["days_remaining"] <= 20)
     ok = total - expired - critical - warning
     
     return {

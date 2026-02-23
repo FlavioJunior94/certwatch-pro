@@ -11,7 +11,7 @@ services:
       - ./config:/app/config
     environment:
       - API_TOKEN=change-this-secure-token
-      - ALERT_DAYS=30,15,7,3,1
+      - ALERT_DAYS=20,10,7,3,1
     restart: unless-stopped
     networks:
       - certmonitor-net

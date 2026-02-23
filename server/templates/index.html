@@ -271,11 +271,11 @@
             </div>
             <div class="stat-card">
                 <div class="stat-number stat-critical">{{ stats.critical }}</div>
-                <div class="stat-label">Críticos (≤7d)</div>
+                <div class="stat-label">Críticos (≤10d)</div>
             </div>
             <div class="stat-card">
                 <div class="stat-number stat-warning">{{ stats.warning }}</div>
-                <div class="stat-label">Atenção (≤30d)</div>
+                <div class="stat-label">Atenção (≤20d)</div>
             </div>
             <div class="stat-card">
                 <div class="stat-number stat-ok">{{ stats.ok }}</div>
@@ -312,10 +312,17 @@
                         <td>
                             <span class="status-badge status-{{ cert.status_color }}">
                                 {% if cert.days_remaining < 0 %}EXPIRADO
-                                {% elif cert.days_remaining <= 7 %}CRÍTICO
-                                {% elif cert.days_remaining <= 30 %}ATENÇÃO
+                                {% elif cert.days_remaining <= 10 %}CRÍTICO
+                                {% elif cert.days_remaining <= 20 %}ATENÇÃO
                                 {% else %}OK{% endif %}
                             </span>
+                            <div style="margin-top: 8px; font-weight: bold; font-size: 1.1em; color: 
+                                {% if cert.days_remaining < 0 %}#e74c3c
+                                {% elif cert.days_remaining <= 10 %}#e67e22
+                                {% elif cert.days_remaining <= 20 %}#f39c12
+                                {% else %}#27ae60{% endif %}">
+                                {{ cert.days_remaining }} dias
+                            </div>
                         </td>
                         <td class="hostname">{{ cert.hostname }}</td>
                         <td>
@@ -327,8 +334,8 @@
                         <td>
                             <span class="days-remaining" style="color: 
                                 {% if cert.days_remaining < 0 %}#e74c3c
-                                {% elif cert.days_remaining <= 7 %}#e67e22
-                                {% elif cert.days_remaining <= 30 %}#f39c12
+                                {% elif cert.days_remaining <= 10 %}#e67e22
+                                {% elif cert.days_remaining <= 20 %}#f39c12
                                 {% else %}#27ae60{% endif %}">
                                 {{ cert.days_remaining }} dias
                             </span>
