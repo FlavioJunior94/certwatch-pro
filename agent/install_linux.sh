@@ -6,7 +6,8 @@ set -e
 SERVICE_NAME="certmonitor-agent"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SCRIPT_PATH="$SCRIPT_DIR/agent.py"
-PYTHON_BIN=$(which python3)
+VENV_PATH="$SCRIPT_DIR/venv"
+PYTHON_BIN="$VENV_PATH/bin/python3"
 
 echo "========================================"
 echo "CertMonitor Agent - Instalador Linux"
@@ -19,18 +20,18 @@ if [ "$EUID" -ne 0 ]; then
     exit 1
 fi
 
-# Verifica Python
-if ! command -v python3 &> /dev/null; then
-    echo "ERRO: Python 3 não encontrado!"
+# Verifica se venv existe
+if [ ! -d "$VENV_PATH" ]; then
+    echo "ERRO: Ambiente virtual não encontrado em $VENV_PATH"
+    echo "Execute primeiro:"
+    echo "  python3 -m venv venv"
+    echo "  source venv/bin/activate"
+    echo "  pip install -r requirements.txt"
     exit 1
 fi
 
-echo "Python encontrado: $PYTHON_BIN"
-echo
-
-# Instala dependências
-echo "Instalando dependências..."
-pip3 install -r "$SCRIPT_DIR/requirements.txt"
+echo "Ambiente virtual encontrado: $VENV_PATH"
+echo "Python: $PYTHON_BIN"
 echo
 
 # Cria arquivo de serviço systemd
@@ -44,6 +45,7 @@ After=network.target
 Type=simple
 User=root
 WorkingDirectory=$SCRIPT_DIR
+Environment="PATH=$VENV_PATH/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 ExecStart=$PYTHON_BIN $SCRIPT_PATH
 Restart=always
 RestartSec=10
