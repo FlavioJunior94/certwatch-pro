@@ -8,6 +8,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SCRIPT_PATH="$SCRIPT_DIR/agent.py"
 VENV_PATH="$SCRIPT_DIR/venv"
 PYTHON_BIN="$VENV_PATH/bin/python3"
+PIP_BIN="$VENV_PATH/bin/pip"
 
 echo "========================================"
 echo "CertMonitor Agent - Instalador Linux"
@@ -20,18 +21,43 @@ if [ "$EUID" -ne 0 ]; then
     exit 1
 fi
 
-# Verifica se venv existe
-if [ ! -d "$VENV_PATH" ]; then
-    echo "ERRO: Ambiente virtual não encontrado em $VENV_PATH"
-    echo "Execute primeiro:"
-    echo "  python3 -m venv venv"
-    echo "  source venv/bin/activate"
-    echo "  pip install -r requirements.txt"
+# Verifica Python
+if ! command -v python3 &> /dev/null; then
+    echo "ERRO: Python 3 não encontrado!"
+    echo "Instale com: sudo yum install python3 (CentOS/RHEL) ou sudo apt install python3 (Ubuntu/Debian)"
     exit 1
 fi
 
-echo "Ambiente virtual encontrado: $VENV_PATH"
-echo "Python: $PYTHON_BIN"
+echo "Python encontrado: $(which python3)"
+echo
+
+# Cria venv se não existir
+if [ ! -d "$VENV_PATH" ]; then
+    echo "Criando ambiente virtual..."
+    python3 -m venv "$VENV_PATH"
+    if [ $? -ne 0 ]; then
+        echo "ERRO: Falha ao criar venv. Instale python3-venv:"
+        echo "  Ubuntu/Debian: sudo apt install python3-venv"
+        echo "  CentOS/RHEL: já incluído no python3"
+        exit 1
+    fi
+    echo "✅ Ambiente virtual criado"
+else
+    echo "✅ Ambiente virtual já existe"
+fi
+echo
+
+# Atualiza pip e instala dependências
+echo "Instalando dependências..."
+"$PIP_BIN" install --upgrade pip > /dev/null 2>&1
+"$PIP_BIN" install cryptography pyOpenSSL requests pyyaml
+
+if [ $? -ne 0 ]; then
+    echo "ERRO: Falha ao instalar dependências"
+    exit 1
+fi
+
+echo "✅ Dependências instaladas"
 echo
 
 # Cria arquivo de serviço systemd

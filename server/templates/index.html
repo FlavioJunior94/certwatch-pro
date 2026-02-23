@@ -85,6 +85,38 @@
             margin-bottom: 20px;
         }
         
+        .hostname-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        
+        .hostname-btn {
+            padding: 10px 20px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 25px;
+            font-size: 0.95em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .hostname-btn:hover {
+            background: #f0f0ff;
+            transform: translateY(-2px);
+        }
+        
+        .hostname-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        
         .search-box {
             width: 100%;
             padding: 15px;
@@ -256,6 +288,7 @@
         </div>
         
         <div class="filters">
+            <div class="hostname-filters" id="hostnameFilters"></div>
             <input type="text" class="search-box" id="searchBox" placeholder="🔍 Buscar por hostname, caminho ou subject..." onkeyup="filterTable()">
         </div>
         
@@ -318,6 +351,57 @@
     </div>
     
     <script>
+        let selectedHostname = null;
+        
+        // Extrair hostnames únicos e criar botões
+        function createHostnameButtons() {
+            const table = document.getElementById('certTable');
+            if (!table) return;
+            
+            const rows = table.getElementsByTagName('tr');
+            const hostnames = new Set();
+            
+            for (let i = 1; i < rows.length; i++) {
+                const hostnameCell = rows[i].getElementsByClassName('hostname')[0];
+                if (hostnameCell) {
+                    hostnames.add(hostnameCell.textContent.trim());
+                }
+            }
+            
+            const container = document.getElementById('hostnameFilters');
+            container.innerHTML = '';
+            
+            // Criar botão para cada hostname
+            hostnames.forEach(hostname => {
+                const btn = document.createElement('button');
+                btn.className = 'hostname-btn';
+                btn.textContent = hostname;
+                btn.onclick = () => toggleHostnameFilter(hostname, btn);
+                container.appendChild(btn);
+            });
+        }
+        
+        // Alternar filtro de hostname
+        function toggleHostnameFilter(hostname, btn) {
+            const allButtons = document.querySelectorAll('.hostname-btn');
+            
+            // Se clicar no mesmo botão, desseleciona
+            if (selectedHostname === hostname) {
+                selectedHostname = null;
+                btn.classList.remove('active');
+                filterTable();
+                return;
+            }
+            
+            // Remove active de todos os botões
+            allButtons.forEach(b => b.classList.remove('active'));
+            
+            // Ativa o botão clicado
+            selectedHostname = hostname;
+            btn.classList.add('active');
+            filterTable();
+        }
+        
         function filterTable() {
             const input = document.getElementById('searchBox');
             const filter = input.value.toLowerCase();
@@ -330,9 +414,22 @@
             for (let i = 1; i < rows.length; i++) {
                 const row = rows[i];
                 const text = row.textContent.toLowerCase();
-                row.style.display = text.includes(filter) ? '' : 'none';
+                const hostnameCell = row.getElementsByClassName('hostname')[0];
+                const hostname = hostnameCell ? hostnameCell.textContent.trim() : '';
+                
+                // Verifica filtro de busca
+                const matchesSearch = text.includes(filter);
+                
+                // Verifica filtro de hostname
+                const matchesHostname = !selectedHostname || hostname === selectedHostname;
+                
+                // Mostra apenas se passar nos dois filtros
+                row.style.display = (matchesSearch && matchesHostname) ? '' : 'none';
             }
         }
+        
+        // Criar botões ao carregar a página
+        window.onload = createHostnameButtons;
         
         // Auto-refresh a cada 5 minutos
         setTimeout(() => location.reload(), 300000);
