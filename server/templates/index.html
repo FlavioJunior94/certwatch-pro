@@ -208,6 +208,13 @@
             color: #666;
             font-size: 0.9em;
             font-family: 'Courier New', monospace;
+            word-break: break-all;
+            max-width: 300px;
+        }
+        
+        .cert-info {
+            word-break: break-word;
+            max-width: 250px;
         }
         
         .days-remaining {
@@ -316,16 +323,9 @@
                                 {% elif cert.days_remaining <= 20 %}ATENÇÃO
                                 {% else %}OK{% endif %}
                             </span>
-                            <div style="margin-top: 8px; font-weight: bold; font-size: 1.1em; color: 
-                                {% if cert.days_remaining < 0 %}#e74c3c
-                                {% elif cert.days_remaining <= 10 %}#e67e22
-                                {% elif cert.days_remaining <= 20 %}#f39c12
-                                {% else %}#27ae60{% endif %}">
-                                {{ cert.days_remaining }} dias
-                            </div>
                         </td>
                         <td class="hostname">{{ cert.hostname }}</td>
-                        <td>
+                        <td class="cert-info">
                             <strong>{{ cert.subject }}</strong><br>
                             <small style="color: #999;">Emissor: {{ cert.issuer }}</small>
                         </td>
