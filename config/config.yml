@@ -22,7 +22,7 @@ notifications:
       - admin@example.com
       - security@example.com
     
-  # Webhook (Slack, Discord, Teams, etc)
+  # Webhook
   webhook:
     enabled: false
     url: https://hooks.slack.com/services/YOUR/WEBHOOK/URL

@@ -9,6 +9,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 import uvicorn
+import notifier
 
 # Configuração
 API_TOKEN = os.getenv("API_TOKEN", "change-this-secure-token")
@@ -80,6 +81,10 @@ async def receive_report(report: CertificateReport, _: bool = Depends(verify_tok
         all_certs.append(cert_dict)
     
     save_certificates(all_certs)
+    
+    # Verifica e envia notificações
+    notifier.check_and_notify(all_certs)
+    
     return {"status": "success", "certificates_received": len(report.certificates)}
 
 @app.get("/api/certificates")
