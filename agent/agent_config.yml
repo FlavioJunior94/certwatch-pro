@@ -19,7 +19,7 @@ scan_paths:
   # - /var/certificates
   # - /opt/certs
 
-# Intervalo de escaneamento em segundos (3600 = 1 hora)
+# Intervalo de escaneamento em segundos (3600 = 1 hora, 86400 = 24 horas)
 scan_interval: 3600
 
 # Extensões de arquivo para escanear
